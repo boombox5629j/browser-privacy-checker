@@ -1,0 +1,113 @@
+// Wait for DOM to load
+document.addEventListener('DOMContentLoaded', async () => {
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    
+    // Collect browser data
+    const browserData = collectBrowserData();
+    
+    // Calculate risk score
+    const riskScore = calculateRiskScore(browserData);
+    const riskLevel = getRiskLevel(riskScore);
+    
+    // Display results
+    displayResults(browserData, riskScore, riskLevel);
+    
+    loading.classList.add('hidden');
+    results.classList.remove('hidden');
+});
+
+function collectBrowserData() {
+    return {
+        userAgent: navigator.userAgent,
+        browser: parseUserAgent(navigator.userAgent),
+        platform: navigator.platform,
+        language: navigator.language,
+        languages: navigator.languages?.join(', ') || 'N/A',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        cookiesEnabled: navigator.cookieEnabled,
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        colorDepth: screen.colorDepth,
+        cpuCores: navigator.hardwareConcurrency || 'N/A',
+        deviceMemory: navigator.deviceMemory || 'N/A',
+        doNotTrack: navigator.doNotTrack || 'N/A'
+    };
+}
+
+function parseUserAgent(ua) {
+    if (ua.includes('Chrome')) return 'Chrome';
+    if (ua.includes('Firefox')) return 'Firefox';
+    if (ua.includes('Safari')) return 'Safari';
+    if (ua.includes('Edge')) return 'Edge';
+    return 'Unknown';
+}
+
+function calculateRiskScore(data) {
+    let score = 0;
+    
+    // Cookies enabled? (+20)
+    if (data.cookiesEnabled) score += 20;
+    
+    // Common screen sizes are more trackable (+15)
+    if ([1366, 1920, 1536].includes(data.screenWidth)) score += 15;
+    
+    // Default language (+10)
+    if (data.language === 'en-US' || data.language === 'en') score += 10;
+    
+    // No Do Not Track (+15)
+    if (data.doNotTrack === 'unspecified' || !data.doNotTrack) score += 15;
+    
+    // More CPU cores = more unique (+10)
+    if (data.cpuCores > 4) score += 10;
+    
+    return Math.min(score, 100);
+}
+
+function getRiskLevel(score) {
+    if (score <= 30) return { label: 'Low', color: 'low' };
+    if (score <= 60) return { label: 'Medium', color: 'medium' };
+    return { label: 'High', color: 'high' };
+}
+
+function displayResults(data, score, risk) {
+    // Risk meter
+    document.getElementById('risk-label').textContent = `${risk.label} Tracking Risk`;
+    document.getElementById('risk-label').className = risk.color;
+    document.getElementById('risk-score').textContent = score;
+    document.getElementById('risk-score').className = risk.color;
+    document.getElementById('risk-fill').style.width = `${score}%`;
+    document.getElementById('risk-fill').className = `risk-fill ${risk.color}`;
+    
+    // Device info
+    document.getElementById('device-info').innerHTML = `
+        <div class="info-item"><span>Browser:</span><span>${data.browser}</span></div>
+        <div class="info-item"><span>Platform:</span><span>${data.platform}</span></div>
+        <div class="info-item"><span>User Agent:</span><span>${data.userAgent.slice(0, 50)}...</span></div>
+        <div class="info-item"><span>Cookies:</span><span>${data.cookiesEnabled ? 'Enabled' : 'Disabled'}</span></div>
+        <div class="info-item"><span>Do Not Track:</span><span>${data.doNotTrack}</span></div>
+    `;
+    
+    // Screen info
+    document.getElementById('screen-info').innerHTML = `
+        <div class="info-item"><span>Resolution:</span><span>${data.screenWidth} × ${data.screenHeight}</span></div>
+        <div class="info-item"><span>Color Depth:</span><span>${data.colorDepth} bits</span></div>
+        <div class="info-item"><span>CPU Cores:</span><span>${data.cpuCores}</span></div>
+        <div class="info-item"><span>Device Memory:</span><span>${data.deviceMemory} GB</span></div>
+    `;
+    
+    // Location clues
+    document.getElementById('location-info').innerHTML = `
+        <div class="info-item"><span>Language:</span><span>${data.language}</span></div>
+        <div class="info-item"><span>Languages:</span><span>${data.languages}</span></div>
+        <div class="info-item"><span>Time Zone:</span><span>${data.timezone}</span></div>
+    `;
+    
+    // Protection tips
+    document.getElementById('protection-tips').innerHTML = `
+        <div class="tip">🛡️ Use privacy-focused browsers like Brave or Firefox with privacy extensions</div>
+        <div class="tip">🔒 Enable "Do Not Track" and block third-party cookies</div>
+        <div class="tip">🌐 Use VPN for sensitive browsing</div>
+        <div class="tip">📱 Test in private/incognito mode to see differences</div>
+    `;
+}

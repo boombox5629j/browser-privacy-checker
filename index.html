@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Privacy Exposure Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🕵️ Browser Privacy Exposure Viewer<br><small>by [Your Name] - Hackathon 2026</small></h1>
+        <p class="subtitle">Websites can track you using this information without cookies</p>
+        
+        <div id="loading" class="loading">Scanning your browser...</div>
+        
+        <div id="results" class="results hidden">
+            <div class="risk-meter">
+                <h2 id="risk-label">Calculating...</h2>
+                <div id="risk-bar" class="risk-bar">
+                    <div id="risk-fill" class="risk-fill"></div>
+                </div>
+                <span id="risk-score">0</span>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Device & Browser</h3>
+                    <div id="device-info"></div>
+                </div>
+                <div class="info-card">
+                    <h3>Screen & Display</h3>
+                    <div id="screen-info"></div>
+                </div>
+                <div class="info-card">
+                    <h3>Location Clues</h3>
+                    <div id="location-info"></div>
+                </div>
+            </div>
+            
+            <div class="tips">
+                <h3>🔒 How to Protect Yourself</h3>
+                <div id="protection-tips"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
